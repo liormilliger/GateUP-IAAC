@@ -13,3 +13,13 @@ output "github_actions_role_arn" {
   description = "The ARN of the IAM role for GitHub Actions to assume."
   value       = module.iam_oidc.role_arn
 }
+
+output "ecr_repository_url" {
+  description = "The URL of the ECR repository for the API."
+  value       = module.api.ecr_repository_url
+}
+
+output "api_gateway_endpoint" {
+  description = "The public endpoint URL for the API."
+  value       = module.api.api_gateway_endpoint
+}

@@ -72,3 +72,13 @@ module "iam" {
 module "iam_oidc" {
   source = "../../modules/iam-oidc"
 }
+
+# Call the API module to create the ECR repo, Lambda, and API Gateway.
+module "api" {
+  source = "../../modules/api"
+
+  project_name        = var.project_name
+  environment         = var.environment
+  tags                = local.tags
+  lambda_iam_role_arn = module.iam.lambda_exec_role_arn
+}
