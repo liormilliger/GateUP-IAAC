@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "The AWS region where resources will be created."
   type        = string
-  default     = "us-east-1" # You can change this to your preferred region
+  default     = "us-east-1"
 }
 
 variable "project_name" {
@@ -14,4 +14,10 @@ variable "environment" {
   description = "The deployment environment (e.g., dev, staging, prod)."
   type        = string
   default     = "dev"
+}
+
+variable "vpc_name" {
+  description = "The desired name for the VPC."
+  type        = string
+  default     = "liorm-GateUP" # Your requested name is now the default
 }
