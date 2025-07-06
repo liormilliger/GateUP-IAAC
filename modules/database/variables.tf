@@ -13,3 +13,23 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+output "residents_table_arn" {
+  description = "The ARN of the Residents DynamoDB table."
+  value       = aws_dynamodb_table.residents.arn
+}
+
+output "guests_table_arn" {
+  description = "The ARN of the Guests DynamoDB table."
+  value       = aws_dynamodb_table.guests.arn
+}
+
+output "logs_table_arn" {
+  description = "The ARN of the Logs DynamoDB table."
+  value       = aws_dynamodb_table.logs.arn
+}
+
+output "trespassing_table_arn" {
+  description = "The ARN of the Trespassing DynamoDB table."
+  value       = aws_dynamodb_table.trespassing.arn
+}
