@@ -1,0 +1,68 @@
+name: Deploy Infrastructure with Terraform
+
+# Trigger this workflow on pushes to the main branch
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Also allow manual triggering
+
+# Grant permissions for the workflow to request a JWT from GitHub's OIDC provider.
+# This is required for secure, passwordless authentication to AWS.
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+
+    # Define the default working directory for all steps in this job
+    defaults:
+      run:
+        working-directory: ./environments/dev
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configure AWS credentials using OpenID Connect (OIDC)
+      # This is the modern, secure way to authenticate. It avoids storing long-lived
+      # AWS secret keys in GitHub.
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }} # Assumes a role defined in GitHub secrets
+          aws-region: ${{ secrets.AWS_REGION }} # Your AWS region
+
+      # 3. Setup Terraform
+      # Installs a specific version of Terraform CLI on the runner.
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      # 4. Initialize Terraform
+      # Runs 'terraform init' to configure the backend and download providers.
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      # 5. Validate Terraform Configuration
+      # Runs 'terraform validate' to check for syntax errors.
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      # 6. Generate Terraform Plan
+      # Runs 'terraform plan' to see what changes will be made.
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+
+      # 7. Apply Terraform Changes
+      # Runs 'terraform apply' automatically. This step only runs on the 'main' branch.
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -no-color

@@ -67,3 +67,8 @@ module "iam" {
     module.database.trespassing_table_arn
   ]
 }
+
+# Call the IAM OIDC module to create the role for GitHub Actions
+module "iam_oidc" {
+  source = "../../modules/iam-oidc"
+}
