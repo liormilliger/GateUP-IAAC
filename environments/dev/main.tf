@@ -71,6 +71,11 @@ module "iam" {
 # Call the IAM OIDC module to create the role for GitHub Actions
 module "iam_oidc" {
   source = "../../modules/iam-oidc"
+
+  trusted_github_repos = [
+    "liormilliger/GateUP-IAAC", # Your infrastructure repo
+    "liormilliger/GateUP"       # Your application repo
+  ]
 }
 
 # Call the API module to create the ECR repo, Lambda, and API Gateway.
