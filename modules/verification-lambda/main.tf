@@ -1,3 +1,14 @@
+data "archive_file" "lambda_placeholder" {
+  type        = "zip"
+  output_path = "${path.module}/placeholder.zip"
+
+  source {
+    content  = "lambda placeholder"
+    filename = "placeholder.txt"
+  }
+}
+
+# 1. IAM Role for the Verification Lambda
 resource "aws_iam_role" "verification_lambda_role" {
   name = "${var.project_name}-verification-lambda-role-${var.environment}"
 
@@ -74,18 +85,18 @@ resource "aws_iam_role_policy_attachment" "verification_lambda_attach" {
 }
 
 # 4. The Lambda Function itself
-# NOTE: We are creating the function, but there is no code yet.
-# The code will be added in a later step.
 resource "aws_lambda_function" "verification_lambda" {
   function_name = "${var.project_name}-verification-lambda-${var.environment}"
   role          = aws_iam_role.verification_lambda_role.arn
-  handler       = "main.handler" # Assumes a file named 'main.py' with a 'handler' function
+  handler       = "main.handler"
   runtime       = "python3.9"
   timeout       = 60
 
-  # Placeholder for the code. We will replace this later with a real deployment package.
-  filename         = "placeholder.zip"
-  source_code_hash = filebase64sha256("placeholder.zip")
+  # --- START OF CHANGE ---
+  # Use the dynamically generated zip file from the archive_file data source.
+  filename         = data.archive_file.lambda_placeholder.output_path
+  source_code_hash = data.archive_file.lambda_placeholder.output_base64sha256
+  # --- END OF CHANGE ---
 
   tags = var.tags
 }
