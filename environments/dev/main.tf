@@ -87,3 +87,28 @@ module "api" {
   tags                = local.tags
   lambda_iam_role_arn = module.iam.lambda_exec_role_arn
 }
+
+# Call the Rekognition module to create the Kinesis Stream and SNS Topic
+module "rekognition" {
+  source       = "../../modules/rekognition"
+  project_name = var.project_name
+  environment  = var.environment
+  tags         = local.tags
+}
+
+# Call the Verification Lambda module
+module "verification_lambda" {
+  source = "../../modules/verification-lambda"
+
+  project_name             = var.project_name
+  environment              = var.environment
+  tags                     = local.tags
+  kinesis_video_stream_arn = module.rekognition.kinesis_video_stream_arn
+  sns_topic_arn            = module.rekognition.sns_topic_arn
+  dynamodb_table_arns = [
+    module.database.residents_table_arn,
+    module.database.guests_table_arn,
+    module.database.logs_table_arn,
+    module.database.trespassing_table_arn
+  ]
+}
